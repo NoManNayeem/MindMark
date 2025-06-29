@@ -11,7 +11,7 @@ It uses:
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/NoManNayeem/mindmark.git
+git clone https://github.com/NoManNayeem/MindMark.git
 cd mindmark
 ```
 

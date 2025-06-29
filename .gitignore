@@ -1,0 +1,52 @@
+# === Python Virtual Environment ===
+venv/
+*.py[cod]
+__pycache__/
+*.pyo
+
+# === Environment Variables ===
+.env
+.env.*
+!.env.example
+
+# === Django & SQLite ===
+mindmark_backend/db.sqlite3
+mindmark_backend/memory.sqlite3
+*.sqlite3
+
+# === Node.js / Next.js ===
+mindmark-frontend/node_modules/
+mindmark-frontend/.next/
+mindmark-frontend/.env
+mindmark-frontend/.env.*
+mindmark-frontend/package-lock.json
+mindmark-frontend/yarn.lock
+mindmark-frontend/pnpm-lock.yaml
+
+# === Notebooks ===
+notebooks/.ipynb_checkpoints/
+notebooks/*.db
+notebooks/*.log
+notebooks/*.csv
+notebooks/*.json
+
+# === Logs ===
+*.log
+
+# === macOS & Windows OS files ===
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+desktop.ini
+
+# === VSCode / IDE settings ===
+.vscode/
+.idea/
+*.code-workspace
+
+# === Misc ===
+*.bak
+*.tmp
+*.swp
+*.swo

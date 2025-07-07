@@ -1,3 +1,5 @@
+# agent/serializers.py
+
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Topic, Message
@@ -13,8 +15,8 @@ class TopicSerializer(serializers.ModelSerializer):
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
-        fields = ['id', 'topic', 'user_message', 'agent_response', 'timestamp']
-        read_only_fields = ['id', 'agent_response', 'timestamp']
+        fields = ['id', 'topic', 'role', 'content', 'timestamp']
+        read_only_fields = ['id', 'timestamp']
 
 
 class RegisterSerializer(serializers.ModelSerializer):

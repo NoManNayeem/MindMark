@@ -145,3 +145,20 @@ SWAGGER_SETTINGS = {
     'DEFAULT_MODEL_RENDERING': 'example',
 }
 
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),  # 👈 1 hour access token
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  # optional: 1 day refresh token
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+
+# Set session to last 1 hour of inactivity
+SESSION_COOKIE_AGE = 3600  # in seconds (3600 = 1 hour)
+
+# Optional: Only expire if inactive for an hour
+SESSION_SAVE_EVERY_REQUEST = False
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False

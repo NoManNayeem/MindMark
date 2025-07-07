@@ -1,3 +1,5 @@
+# agent/views.py
+
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -56,13 +58,22 @@ class ChatView(APIView):
 
         # 🧠 Get memory-aware agent for this topic
         agent = get_agent(user_id=request.user.id, topic_id=topic.id)
-        response = agent.run(user_msg)
 
-        # 💾 Save both message and response
+        # 💬 Save user's message
         Message.objects.create(
             topic=topic,
-            user_message=user_msg,
-            agent_response=response.content
+            role='user',
+            content=user_msg
+        )
+
+        # 🤖 Get agent's response
+        response = agent.run(user_msg)
+
+        # 💬 Save agent's message
+        Message.objects.create(
+            topic=topic,
+            role='assistant',
+            content=response.content
         )
 
         return Response({"agent_response": response.content}, status=status.HTTP_200_OK)

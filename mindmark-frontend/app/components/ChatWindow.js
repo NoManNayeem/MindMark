@@ -10,12 +10,16 @@ export default function ChatWindow({ topic }) {
   const [isSending, setIsSending] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const chatRef = useRef(null);
+  const activeTopicRef = useRef(null);
 
+  // Fetch messages when topic changes
   useEffect(() => {
     if (!topic) {
       setMessages([]);
       return;
     }
+
+    activeTopicRef.current = topic.id;
 
     const fetchMessages = async () => {
       try {
@@ -27,6 +31,7 @@ export default function ChatWindow({ topic }) {
 
         if (res.ok) {
           const data = await res.json();
+          // Expected format: [{ id, role, content, timestamp }]
           setMessages(data);
         } else {
           setMessages([]);
@@ -39,6 +44,7 @@ export default function ChatWindow({ topic }) {
     fetchMessages();
   }, [topic]);
 
+  // Auto scroll to bottom
   useEffect(() => {
     chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, isTyping]);
@@ -51,9 +57,12 @@ export default function ChatWindow({ topic }) {
     setIsSending(true);
     setIsTyping(true);
 
+    // Optimistic UI update (user message)
+    const tempId = `temp-${Date.now()}`;
     setMessages((prev) => [
       ...prev,
-      { user_message: userMessage, agent_response: null },
+      { id: tempId, role: 'user', content: userMessage },
+      { id: `${tempId}-agent`, role: 'assistant', content: null },
     ]);
 
     try {
@@ -68,16 +77,26 @@ export default function ChatWindow({ topic }) {
 
       const data = await res.json();
 
-      if (res.ok) {
+      if (res.ok && activeTopicRef.current === topic.id) {
         setMessages((prev) => {
           const updated = [...prev];
-          updated[updated.length - 1].agent_response = data.agent_response;
+          const agentIndex = updated.findIndex(
+            (m) => m.id === `${tempId}-agent`
+          );
+          if (agentIndex !== -1) {
+            updated[agentIndex].content = data.agent_response;
+          }
           return updated;
         });
       } else {
         setMessages((prev) => {
           const updated = [...prev];
-          updated[updated.length - 1].agent_response = '⚠️ Failed to get response';
+          const agentIndex = updated.findIndex(
+            (m) => m.id === `${tempId}-agent`
+          );
+          if (agentIndex !== -1) {
+            updated[agentIndex].content = '⚠️ Failed to get response';
+          }
           return updated;
         });
       }
@@ -113,24 +132,29 @@ export default function ChatWindow({ topic }) {
       >
         {messages.map((msg, idx) => (
           <div key={idx} className="space-y-2">
-            <div className="self-end">
-              <div className="text-sm text-blue-600 font-semibold">You</div>
-              <div className="bg-blue-50 p-3 rounded-md shadow-sm text-sm whitespace-pre-wrap">
-                {msg.user_message}
+            {msg.role === 'user' ? (
+              <div className="self-end text-right">
+                <div className="text-sm text-blue-600 font-semibold">You</div>
+                <div className="bg-blue-50 p-3 rounded-md shadow-sm text-sm whitespace-pre-wrap">
+                  {msg.content}
+                </div>
               </div>
-            </div>
-            <div className="self-start">
-              <div className="text-sm text-gray-700 font-semibold">Agent</div>
-              <div className="bg-gray-100 p-3 rounded-md shadow-sm text-sm prose prose-sm max-w-none whitespace-pre-wrap">
-                {msg.agent_response !== null ? (
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {msg.agent_response}
-                  </ReactMarkdown>
-                ) : (
-                  <span className="animate-pulse text-gray-400">Typing...</span>
-                )}
+            ) : (
+              <div className="self-start text-left">
+                <div className="text-sm text-gray-700 font-semibold">Agent</div>
+                <div className="bg-gray-100 p-3 rounded-md shadow-sm text-sm prose prose-sm max-w-none whitespace-pre-wrap">
+                  {msg.content !== null ? (
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {msg.content}
+                    </ReactMarkdown>
+                  ) : (
+                    <span className="animate-pulse text-gray-400">
+                      Thinking...
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         ))}
       </div>
